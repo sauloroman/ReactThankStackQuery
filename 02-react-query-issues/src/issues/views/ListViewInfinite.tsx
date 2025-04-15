@@ -1,17 +1,17 @@
 import React, { useState } from 'react'
 import { State } from '../interfaces'
-import { useIssues } from '../hooks'
+import { useIssuesInfinite } from '../hooks'
 import { IssueList, LabelPicker } from '../components'
 import { LoadingSpinner } from '../shared/components'
 
-export const ListView: React.FC = () => {
+export const ListViewInfinite: React.FC = () => {
 
   const [selectedLabel, setSelectedLabel] = useState<string[]>([])
   const [state, setState] = useState<State>(State.All)
 
-  const { issuesQuery, page, nextPage, prevPage } = useIssues({ state, selectedLabel })
+  const { issuesQuery } = useIssuesInfinite({ state, selectedLabel })
 
-  const issues = issuesQuery.data ?? []
+  const issues = issuesQuery.data?.pages.flat() ?? []
 
   const onLabelSelected = ( label: string ) => {
 
@@ -30,14 +30,16 @@ export const ListView: React.FC = () => {
           issuesQuery.isLoading
           ? (<LoadingSpinner />)
           : (
-            <>
+            <div className='flex flex-col justify-center'>
               <IssueList onStateChange={ setState } issues={issues} state={state} />
-              <div className='flex justify-between items-center'>
-                <button onClick={ prevPage } className='p-2 bg-blue-500 hover:bg-blue-700 transition-all rounded-md'>Anteriores</button>
-                <span>{page}</span>
-                <button onClick={ nextPage } className='p-2 bg-blue-500 hover:bg-blue-700 transition-all rounded-md'>Siguientes</button>
-              </div>
-            </>
+              <button disabled={issuesQuery.isFetchingNextPage} onClick={ () => issuesQuery.fetchNextPage() } className='p-2 bg-blue-500 hover:bg-blue-700 transition-all rounded-md disabled:bg-gray-500'>
+                {
+                  issuesQuery.isFetchingNextPage
+                  ? ('Cargando más...')
+                  : ('Cargar más...')
+                }
+              </button>
+            </div>
           )
         } 
       </div>
