@@ -5,21 +5,29 @@ interface GetProductsOptions {
   filterKey?: string
 }
 
-const sleep = async ( seconds: number ): Promise<boolean> => {
+export const sleep = async ( seconds: number ): Promise<boolean> => {
   return new Promise( (res) => {
     setTimeout(() => res(true), seconds * 1000 )
   }) 
 }
 
 export const getProducts = async ({ filterKey }: GetProductsOptions ): Promise<Product[]> => {
-  await sleep(2)
   const filterUrl = filterKey ? `category=${filterKey}` : ''
   const { data } = await productsApi.get<Product[]>(`/products?${filterUrl}`)
   return data
 }
 
 export const getProductById = async ( id: number ): Promise<Product> => {
-  // await sleep(2)
   const {data} = await productsApi.get<Product>(`/products/${id}`)
+  return data
+}
+
+export const createProduct = async ( product: Partial<Product> ) => {
+  await sleep(5)
+
+  // Simular que falla
+  throw new Error('Error creating product...')
+
+  const { data } = await productsApi.post<Product>(`/products`, product )
   return data
 }
